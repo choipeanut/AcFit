@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 50">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#666666"/>
+      <stop offset="100%" stop-color="#2a2a2a"/>
+    </linearGradient>
+  </defs>
+  <!-- 초커 띠 -->
+  <path d="M20 22 Q150 32 280 22 Q280 28 150 38 Q20 28 20 22 Z" fill="url(#g)" opacity="0.9"/>
+  <!-- 버클/장식 -->
+  <rect x="136" y="18" width="28" height="14" rx="4" fill="#020202"/>
+  <rect x="140" y="21" width="20" height="8" rx="3" fill="#666666" opacity="0.6"/>
+</svg>

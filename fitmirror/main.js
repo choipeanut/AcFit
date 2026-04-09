@@ -13,9 +13,9 @@ import { computeAverageBrightness } from './utils/landmark.js';
 // ─── 상태 ───────────────────────────────────────────────
 const state = {
   selectedItems: {
-    hat: null,      // { image: HTMLImageElement, sizeCm: number, id: string }
-    earring: null,  // { image: HTMLImageElement, id: string }
-    necklace: null, // { image: HTMLImageElement, id: string }
+    hat: null,      // { image, sizeCm, id }
+    earring: null,  // { image, id }
+    necklace: null, // { image, id }
   },
   activeCategory: 'earring',
   filterIntensity: 50,
@@ -23,36 +23,43 @@ const state = {
   lastFaceDetectedAt: null,
   faceWarningShown: false,
   lightnessWarningShown: false,
+  gallery: [],          // { dataURL }[] 최대 10개
+  galleryVisible: false,
 };
 
 // ─── FPS 추적 ────────────────────────────────────────────
 const fps = { frames: 0, last: performance.now(), current: 0 };
 
 // ─── DOM ────────────────────────────────────────────────
-const videoEl       = document.getElementById('input-video');
-const canvas        = document.getElementById('output-canvas');
-const ctx           = canvas.getContext('2d', { willReadFrequently: true });
-const loadingScreen = document.getElementById('loading-screen');
-const loadingText   = document.getElementById('loading-text');
-const errorScreen   = document.getElementById('error-screen');
-const appEl         = document.getElementById('app');
-const itemGrid      = document.getElementById('item-grid');
-const hatControls   = document.getElementById('hat-controls');
-const hatSizeSlider = document.getElementById('hat-size-slider');
-const hatSizeValue  = document.getElementById('hat-size-value');
-const filterSlider  = document.getElementById('filter-slider');
-const filterValue   = document.getElementById('filter-value');
-const toast         = document.getElementById('toast');
-const drawerToggle  = document.getElementById('drawer-toggle');
-const sidePanel     = document.querySelector('.side-panel');
-const fpsDisplay    = document.getElementById('fps-display');
+const videoEl        = document.getElementById('input-video');
+const canvas         = document.getElementById('output-canvas');
+const ctx            = canvas.getContext('2d', { willReadFrequently: true });
+const loadingScreen  = document.getElementById('loading-screen');
+const loadingText    = document.getElementById('loading-text');
+const errorScreen    = document.getElementById('error-screen');
+const appEl          = document.getElementById('app');
+const itemGrid       = document.getElementById('item-grid');
+const hatControls    = document.getElementById('hat-controls');
+const hatSizeSlider  = document.getElementById('hat-size-slider');
+const hatSizeValue   = document.getElementById('hat-size-value');
+const filterSlider   = document.getElementById('filter-slider');
+const filterValue    = document.getElementById('filter-value');
+const toast          = document.getElementById('toast');
+const drawerToggle   = document.getElementById('drawer-toggle');
+const sidePanel      = document.querySelector('.side-panel');
+const fpsDisplay     = document.getElementById('fps-display');
 const activeIndicator = document.getElementById('active-indicator');
+const faceStatus     = document.getElementById('face-status');
+const faceStatusText = faceStatus?.querySelector('.face-status-text');
+const galleryBar     = document.getElementById('gallery-bar');
+const galleryStrip   = document.getElementById('gallery-strip');
+const shortcutsModal = document.getElementById('shortcuts-modal');
 
 let toastTimer = null;
-let itemsData = null;
+let itemsData  = null;
 let frameCount = 0;
 
-// ─── 토스트 헬퍼 ────────────────────────────────────────
+// ─── 토스트 ─────────────────────────────────────────────
 function showToast(message, type = '', duration = 3000) {
   toast.textContent = message;
   toast.className = `toast${type ? ' ' + type : ''}`;
@@ -61,7 +68,19 @@ function showToast(message, type = '', duration = 3000) {
   toastTimer = setTimeout(() => toast.classList.add('hidden'), duration);
 }
 
-// ─── 착용 중 표시 업데이트 ──────────────────────────────
+// ─── 얼굴 감지 인디케이터 업데이트 ─────────────────────
+function updateFaceStatus(detected) {
+  if (!faceStatus || !faceStatusText) return;
+  if (detected) {
+    faceStatus.className = 'face-status detected';
+    faceStatusText.textContent = '얼굴 감지됨';
+  } else {
+    faceStatus.className = 'face-status lost';
+    faceStatusText.textContent = '얼굴 없음';
+  }
+}
+
+// ─── 착용 중 표시 ───────────────────────────────────────
 function updateActiveIndicator() {
   const active = Object.entries(state.selectedItems)
     .filter(([, v]) => v !== null)
@@ -77,10 +96,7 @@ function updateActiveIndicator() {
 function renderItemGrid(category) {
   if (!itemsData) return;
 
-  const key = category === 'hat' ? 'hats'
-            : category === 'earring' ? 'earrings'
-            : 'necklaces';
-
+  const key = category === 'hat' ? 'hats' : category === 'earring' ? 'earrings' : 'necklaces';
   const items = itemsData[key] || [];
   itemGrid.innerHTML = '';
 
@@ -90,24 +106,22 @@ function renderItemGrid(category) {
     card.dataset.id = item.id;
 
     const selected = state.selectedItems[category];
-    if (selected && selected.id === item.id) card.classList.add('selected');
+    if (selected?.id === item.id) card.classList.add('selected');
 
     const img = document.createElement('img');
     img.src = item.thumbnail;
     img.alt = item.name;
     img.loading = 'lazy';
-    // 로드 실패 시 인라인 SVG placeholder
     img.onerror = () => { img.src = makePlaceholderDataURL(item.id); };
 
     const name = document.createElement('div');
     name.className = 'item-name';
     name.textContent = item.name;
 
-    // 선택 중 배지
-    if (selected && selected.id === item.id) {
+    if (selected?.id === item.id) {
       const badge = document.createElement('div');
       badge.className = 'selected-badge';
-      badge.textContent = '✓ 착용 중';
+      badge.textContent = '✓ 착용';
       card.appendChild(badge);
     }
 
@@ -120,7 +134,6 @@ function renderItemGrid(category) {
 
 // ─── 아이템 선택 ────────────────────────────────────────
 async function selectItem(category, itemMeta) {
-  // 이미 선택된 경우 해제
   if (state.selectedItems[category]?.id === itemMeta.id) {
     state.selectedItems[category] = null;
     if (category === 'necklace') disablePose();
@@ -129,11 +142,9 @@ async function selectItem(category, itemMeta) {
     return;
   }
 
-  // 로딩 표시
   const card = itemGrid.querySelector(`[data-id="${itemMeta.id}"]`);
   if (card) card.classList.add('loading');
 
-  // 이미지 preload
   const img = await loadImage(itemMeta.asset);
   state.selectedItems[category] = {
     image: img,
@@ -141,7 +152,6 @@ async function selectItem(category, itemMeta) {
     sizeCm: itemMeta.default_size_cm ?? state.hatSizeCm,
   };
 
-  // 목걸이 탭: Pose 활성화
   if (category === 'necklace') {
     loadingText.textContent = 'Pose 모델 로딩 중...';
     loadingScreen.style.opacity = '0.6';
@@ -154,15 +164,15 @@ async function selectItem(category, itemMeta) {
   updateActiveIndicator();
 }
 
-// ─── 이미지 로드 헬퍼 ───────────────────────────────────
+// ─── 이미지 로드 ───────────────────────────────────────
 function loadImage(src) {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     const img = new Image();
     img.onload = () => resolve(img);
     img.onerror = () => {
-      const placeholder = new Image();
-      placeholder.src = makePlaceholderDataURL(src);
-      placeholder.onload = () => resolve(placeholder);
+      const ph = new Image();
+      ph.src = makePlaceholderDataURL(src);
+      ph.onload = () => resolve(ph);
     };
     img.src = src;
   });
@@ -179,7 +189,7 @@ function makePlaceholderDataURL(seed = '') {
   return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
 }
 
-// ─── FPS 계산 ────────────────────────────────────────────
+// ─── FPS ────────────────────────────────────────────────
 function updateFPS() {
   fps.frames++;
   const now = performance.now();
@@ -196,33 +206,35 @@ function updateFPS() {
 function renderFrame() {
   const landmarks = window.currentLandmarks;
 
-  // 캔버스 크기를 video 해상도에 동기화 (최초 1회 또는 변경 시)
   if (videoEl.videoWidth && canvas.width !== videoEl.videoWidth) {
     canvas.width  = videoEl.videoWidth;
     canvas.height = videoEl.videoHeight;
   }
   if (!canvas.width) return;
 
-  // 1. video 프레임 → 캔버스 (미러는 CSS transform: scaleX(-1) 처리)
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.drawImage(videoEl, 0, 0, canvas.width, canvas.height);
 
-  // 2. 어두운 환경 감지 (매 90프레임마다)
+  // 어두운 환경 감지 (매 90프레임)
   if (frameCount % 90 === 0) {
     try {
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const brightness = computeAverageBrightness(imageData);
+      const brightness = computeAverageBrightness(
+        ctx.getImageData(0, 0, canvas.width, canvas.height)
+      );
       if (brightness < 50 && !state.lightnessWarningShown) {
         state.lightnessWarningShown = true;
         showToast('💡 조명이 어둡습니다. 밝은 곳에서 사용해주세요.', 'warning', 4000);
       } else if (brightness >= 50) {
         state.lightnessWarningShown = false;
       }
-    } catch { /* cross-origin 등 예외 무시 */ }
+    } catch { /* cross-origin 무시 */ }
   }
 
-  // 3. 얼굴 감지 여부 체크 (1초 이상 미감지 → 토스트)
-  if (landmarks.face) {
+  // 얼굴 감지 상태
+  const faceDetected = !!landmarks.face;
+  updateFaceStatus(faceDetected);
+
+  if (faceDetected) {
     state.lastFaceDetectedAt = Date.now();
     state.faceWarningShown = false;
   } else if (state.lastFaceDetectedAt && !state.faceWarningShown) {
@@ -232,10 +244,8 @@ function renderFrame() {
     }
   }
 
-  const W = canvas.width;
-  const H = canvas.height;
+  const W = canvas.width, H = canvas.height;
 
-  // 4. 피팅 렌더 (face)
   if (landmarks.face) {
     if (state.selectedItems.hat) {
       drawHat(ctx, landmarks.face, state.selectedItems.hat.image,
@@ -247,13 +257,11 @@ function renderFrame() {
     }
   }
 
-  // 5. 목걸이 (Pose)
   if (landmarks.pose && state.selectedItems.necklace) {
     drawNecklace(ctx, landmarks.pose, state.selectedItems.necklace.image,
                  W, H, state.filterIntensity);
   }
 
-  // 6. FPS 업데이트
   updateFPS();
   frameCount++;
 }
@@ -261,15 +269,14 @@ function renderFrame() {
 // ─── 캡처 ───────────────────────────────────────────────
 function captureAndSave() {
   const dataURL = canvas.toDataURL('image/png');
+  addToGallery(dataURL);
 
   if (navigator.share && navigator.canShare) {
-    canvas.toBlob(async (blob) => {
+    canvas.toBlob(async blob => {
       const file = new File([blob], 'fitmirror_capture.png', { type: 'image/png' });
       if (navigator.canShare({ files: [file] })) {
-        try {
-          await navigator.share({ files: [file], title: 'FitMirror 피팅 결과' });
-          return;
-        } catch { /* 취소 → fallback */ }
+        try { await navigator.share({ files: [file], title: 'FitMirror 피팅 결과' }); return; }
+        catch { /* 취소 → fallback */ }
       }
       downloadDataURL(dataURL);
     }, 'image/png');
@@ -280,27 +287,102 @@ function captureAndSave() {
 
 function downloadDataURL(dataURL) {
   const a = document.createElement('a');
-  a.download = `fitmirror_capture_${Date.now()}.png`;
+  a.download = `fitmirror_${Date.now()}.png`;
   a.href = dataURL;
   a.click();
-  showToast('📸 캡처가 저장되었습니다!');
+  showToast('📸 캡처 저장 완료!');
+}
+
+// ─── 갤러리 ─────────────────────────────────────────────
+function addToGallery(dataURL) {
+  state.gallery.unshift({ dataURL });
+  if (state.gallery.length > 10) state.gallery.pop();
+  renderGallery();
+  if (!state.galleryVisible) toggleGallery(true);
+}
+
+function renderGallery() {
+  if (!galleryStrip) return;
+  galleryStrip.innerHTML = '';
+  state.gallery.forEach(({ dataURL }) => {
+    const img = document.createElement('img');
+    img.src = dataURL;
+    img.className = 'gallery-thumb';
+    img.title = '클릭하여 다운로드';
+    img.addEventListener('click', () => downloadDataURL(dataURL));
+    galleryStrip.appendChild(img);
+  });
+}
+
+function toggleGallery(forceOpen) {
+  state.galleryVisible = forceOpen !== undefined ? forceOpen : !state.galleryVisible;
+  galleryBar?.classList.toggle('hidden', !state.galleryVisible);
+}
+
+// ─── 키보드 단축키 ───────────────────────────────────────
+function bindKeyboardShortcuts() {
+  document.addEventListener('keydown', e => {
+    // 입력 중 무시
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    if (shortcutsModal && !shortcutsModal.classList.contains('hidden')) {
+      if (e.key === 'Escape') shortcutsModal.classList.add('hidden');
+      return;
+    }
+
+    switch (e.key) {
+      case 's': case 'S': captureAndSave(); break;
+      case 'c': case 'C':
+        switchCamera(videoEl).catch(() => showToast('카메라 전환 실패'));
+        break;
+      case '1':
+        switchToTab('hat'); break;
+      case '2':
+        switchToTab('earring'); break;
+      case '3':
+        switchToTab('necklace'); break;
+      case ' ':
+        e.preventDefault();
+        state.selectedItems[state.activeCategory] = null;
+        if (state.activeCategory === 'necklace') disablePose();
+        renderItemGrid(state.activeCategory);
+        updateActiveIndicator();
+        showToast(`${state.activeCategory === 'hat' ? '모자' : state.activeCategory === 'earring' ? '귀걸이' : '목걸이'} 선택 해제`);
+        break;
+      case 'Escape':
+        clearAllItems(); break;
+      case 'g': case 'G':
+        toggleGallery(); break;
+      case '?':
+        shortcutsModal?.classList.remove('hidden'); break;
+    }
+  });
+}
+
+function switchToTab(category) {
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.category === category);
+  });
+  state.activeCategory = category;
+  hatControls.classList.toggle('hidden', category !== 'hat');
+  if (category !== 'necklace' && !state.selectedItems.necklace) disablePose();
+  renderItemGrid(category);
+}
+
+function clearAllItems() {
+  state.selectedItems.hat = null;
+  state.selectedItems.earring = null;
+  state.selectedItems.necklace = null;
+  disablePose();
+  renderItemGrid(state.activeCategory);
+  updateActiveIndicator();
+  showToast('전체 선택 해제');
 }
 
 // ─── UI 이벤트 ──────────────────────────────────────────
 function bindEvents() {
   // 탭 전환
   document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      state.activeCategory = btn.dataset.category;
-      hatControls.classList.toggle('hidden', state.activeCategory !== 'hat');
-
-      if (state.activeCategory !== 'necklace' && !state.selectedItems.necklace) {
-        disablePose();
-      }
-      renderItemGrid(state.activeCategory);
-    });
+    btn.addEventListener('click', () => switchToTab(btn.dataset.category));
   });
 
   // 모자 치수 슬라이더
@@ -326,12 +408,29 @@ function bindEvents() {
     catch { showToast('카메라 전환에 실패했습니다.'); }
   });
 
-  // 선택 해제
+  // 현재 탭 선택 해제
   document.getElementById('deselect-btn').addEventListener('click', () => {
     state.selectedItems[state.activeCategory] = null;
     if (state.activeCategory === 'necklace') disablePose();
     renderItemGrid(state.activeCategory);
     updateActiveIndicator();
+  });
+
+  // 전체 해제
+  document.getElementById('clear-all-btn').addEventListener('click', clearAllItems);
+
+  // 갤러리 닫기
+  document.getElementById('gallery-close-btn')?.addEventListener('click', () => toggleGallery(false));
+
+  // 단축키 모달
+  document.getElementById('shortcuts-btn')?.addEventListener('click', () => {
+    shortcutsModal?.classList.remove('hidden');
+  });
+  document.getElementById('modal-close-btn')?.addEventListener('click', () => {
+    shortcutsModal?.classList.add('hidden');
+  });
+  shortcutsModal?.addEventListener('click', e => {
+    if (e.target === shortcutsModal) shortcutsModal.classList.add('hidden');
   });
 
   // 모바일 drawer 토글
@@ -340,13 +439,15 @@ function bindEvents() {
     drawerToggle.textContent = sidePanel.classList.contains('open') ? '✕ 닫기' : '☰ 아이템 선택';
   });
 
-  // 카메라 권한 재시도
+  // 권한 재시도
   document.getElementById('retry-btn').addEventListener('click', () => location.reload());
+
+  // 키보드 단축키
+  bindKeyboardShortcuts();
 }
 
 // ─── 앱 초기화 ──────────────────────────────────────────
 async function init() {
-  // items.json 로드
   try {
     const res = await fetch('./data/items.json');
     itemsData = await res.json();
@@ -355,7 +456,6 @@ async function init() {
     itemsData = { hats: [], earrings: [], necklaces: [] };
   }
 
-  // 카메라 초기화
   try {
     loadingText.textContent = '카메라 초기화 중...';
     await initCamera(videoEl);
@@ -365,7 +465,6 @@ async function init() {
     return;
   }
 
-  // MediaPipe Face Mesh 초기화
   try {
     loadingText.textContent = 'AI 모델 로딩 중...';
     await startMediaPipeLoop(videoEl, renderFrame);
@@ -376,7 +475,6 @@ async function init() {
     requestAnimationFrame(basicLoop);
   }
 
-  // 앱 표시 (fade-out 로딩 화면)
   loadingScreen.style.opacity = '0';
   setTimeout(() => {
     loadingScreen.classList.add('hidden');
@@ -384,10 +482,7 @@ async function init() {
     if (window.innerWidth <= 768) drawerToggle.classList.remove('hidden');
   }, 400);
 
-  // 이벤트 바인딩
   bindEvents();
-
-  // 초기 그리드 렌더 (귀걸이 탭)
   renderItemGrid('earring');
 }
 

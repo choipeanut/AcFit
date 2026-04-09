@@ -6,10 +6,11 @@
       <stop offset="100%" stop-color="#989898"/>
     </radialGradient>
   </defs>
-  <circle cx="40" cy="40" r="34" fill="url(#g)" opacity="0.95"/>
-  <circle cx="40" cy="40" r="22" fill="transparent" stroke="#1a1a2a" stroke-width="0"/>
-  <!-- 내부 컷아웃으로 후프 효과 -->
-  <circle cx="40" cy="40" r="22" fill="#1a1a1f"/>
+  <!-- evenodd: 바깥 원 - 안쪽 원 = 링 모양, 안쪽은 완전 투명 -->
+  <path fill-rule="evenodd"
+    d="M40,6 A34,34 0 1 1 39.999,6 Z M40,18 A22,22 0 1 0 40.001,18 Z"
+    fill="url(#g)" opacity="0.95"/>
   <!-- 하이라이트 -->
-  <path d="M15 30 Q22 12 40 10 Q58 12 65 30" fill="none" stroke="white" stroke-width="3" opacity="0.4" stroke-linecap="round"/>
+  <path d="M15 30 Q22 12 40 10 Q58 12 65 30" fill="none" stroke="white"
+        stroke-width="3" opacity="0.35" stroke-linecap="round"/>
 </svg>

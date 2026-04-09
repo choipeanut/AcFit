@@ -4,7 +4,7 @@
  * - MediaPipe CDN은 캐시하지 않음 (크기 제한)
  */
 
-const CACHE_NAME = 'fitmirror-v1';
+const CACHE_NAME = 'fitmirror-v2';
 
 const STATIC_ASSETS = [
   './',
@@ -36,6 +36,20 @@ const STATIC_ASSETS = [
   './assets/necklaces/pendant_silver_thumb.svg',
   './assets/necklaces/gold_chain.svg',
   './assets/necklaces/gold_chain_thumb.svg',
+  './assets/hats/cowboy_brown.svg',
+  './assets/hats/cowboy_brown_thumb.svg',
+  './assets/hats/tophat_black.svg',
+  './assets/hats/tophat_black_thumb.svg',
+  './assets/earrings/ruby_drop.svg',
+  './assets/earrings/ruby_drop_thumb.svg',
+  './assets/earrings/gold_hoop.svg',
+  './assets/earrings/gold_hoop_thumb.svg',
+  './assets/earrings/diamond_stud.svg',
+  './assets/earrings/diamond_stud_thumb.svg',
+  './assets/necklaces/choker_black.svg',
+  './assets/necklaces/choker_black_thumb.svg',
+  './assets/necklaces/pearl_necklace.svg',
+  './assets/necklaces/pearl_necklace_thumb.svg',
 ];
 
 // 설치: 정적 에셋 사전 캐싱

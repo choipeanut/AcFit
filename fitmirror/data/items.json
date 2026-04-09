@@ -23,6 +23,22 @@
       "asset": "./assets/hats/bucket_white.svg",
       "default_size_cm": 59,
       "anchor": "top-center"
+    },
+    {
+      "id": "hat_004",
+      "name": "카우보이 브라운",
+      "thumbnail": "./assets/hats/cowboy_brown_thumb.svg",
+      "asset": "./assets/hats/cowboy_brown.svg",
+      "default_size_cm": 58,
+      "anchor": "top-center"
+    },
+    {
+      "id": "hat_005",
+      "name": "탑햇 블랙",
+      "thumbnail": "./assets/hats/tophat_black_thumb.svg",
+      "asset": "./assets/hats/tophat_black.svg",
+      "default_size_cm": 57,
+      "anchor": "top-center"
     }
   ],
   "earrings": [
@@ -46,6 +62,27 @@
       "thumbnail": "./assets/earrings/pearl_stud_thumb.svg",
       "asset": "./assets/earrings/pearl_stud.svg",
       "anchor": "top-center"
+    },
+    {
+      "id": "earring_004",
+      "name": "루비 드롭",
+      "thumbnail": "./assets/earrings/ruby_drop_thumb.svg",
+      "asset": "./assets/earrings/ruby_drop.svg",
+      "anchor": "top-center"
+    },
+    {
+      "id": "earring_005",
+      "name": "골드 후프",
+      "thumbnail": "./assets/earrings/gold_hoop_thumb.svg",
+      "asset": "./assets/earrings/gold_hoop.svg",
+      "anchor": "top-center"
+    },
+    {
+      "id": "earring_006",
+      "name": "다이아 스터드",
+      "thumbnail": "./assets/earrings/diamond_stud_thumb.svg",
+      "asset": "./assets/earrings/diamond_stud.svg",
+      "anchor": "top-center"
     }
   ],
   "necklaces": [
@@ -60,6 +97,18 @@
       "name": "골드 체인",
       "thumbnail": "./assets/necklaces/gold_chain_thumb.svg",
       "asset": "./assets/necklaces/gold_chain.svg"
+    },
+    {
+      "id": "necklace_003",
+      "name": "초커 블랙",
+      "thumbnail": "./assets/necklaces/choker_black_thumb.svg",
+      "asset": "./assets/necklaces/choker_black.svg"
+    },
+    {
+      "id": "necklace_004",
+      "name": "진주 목걸이",
+      "thumbnail": "./assets/necklaces/pearl_necklace_thumb.svg",
+      "asset": "./assets/necklaces/pearl_necklace.svg"
     }
   ]
 }

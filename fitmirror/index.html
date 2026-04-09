@@ -51,10 +51,16 @@
       <!-- 착용 중 표시 -->
       <div id="active-indicator" class="active-indicator hidden"></div>
       <div class="header-actions">
+        <!-- 얼굴 감지 상태 인디케이터 -->
+        <div id="face-status" class="face-status" title="얼굴 감지 상태">
+          <span class="face-dot"></span>
+          <span class="face-status-text">감지 중...</span>
+        </div>
         <!-- FPS 표시 -->
         <span id="fps-display" class="fps-display">-- fps</span>
-        <button id="capture-btn" class="icon-btn" title="캡처 저장">📸</button>
-        <button id="switch-camera-btn" class="icon-btn" title="카메라 전환">🔄</button>
+        <button id="capture-btn" class="icon-btn" title="캡처 저장 (S)">📸</button>
+        <button id="switch-camera-btn" class="icon-btn" title="카메라 전환 (C)">🔄</button>
+        <button id="shortcuts-btn" class="icon-btn" title="키보드 단축키">⌨️</button>
       </div>
     </header>
 
@@ -80,13 +86,13 @@
         <!-- 카테고리 탭 -->
         <div class="tab-bar">
           <button class="tab-btn" data-category="hat">
-            <span class="tab-icon">🎩</span> 모자
+            <span class="tab-icon">🎩</span>모자
           </button>
           <button class="tab-btn active" data-category="earring">
-            <span class="tab-icon">💎</span> 귀걸이
+            <span class="tab-icon">💎</span>귀걸이
           </button>
           <button class="tab-btn" data-category="necklace">
-            <span class="tab-icon">📿</span> 목걸이
+            <span class="tab-icon">📿</span>목걸이
           </button>
         </div>
 
@@ -106,13 +112,21 @@
           </div>
         </div>
 
-        <!-- 선택 해제 -->
+        <!-- 하단 버튼 -->
         <div class="deselect-area">
-          <button id="deselect-btn" class="btn-secondary">선택 해제</button>
+          <button id="deselect-btn" class="btn-secondary">현재 탭 선택 해제</button>
+          <button id="clear-all-btn" class="btn-danger">전체 해제</button>
         </div>
 
       </aside>
     </main>
+
+    <!-- 캡처 갤러리 -->
+    <div id="gallery-bar" class="gallery-bar hidden">
+      <div class="gallery-label">최근 캡처</div>
+      <div id="gallery-strip" class="gallery-strip"></div>
+      <button id="gallery-close-btn" class="gallery-close">✕</button>
+    </div>
 
     <!-- 하단 바 -->
     <footer class="footer">
@@ -130,6 +144,26 @@
 
   <!-- 모바일 drawer 토글 -->
   <button id="drawer-toggle" class="drawer-toggle hidden">☰ 아이템 선택</button>
+
+  <!-- 키보드 단축키 모달 -->
+  <div id="shortcuts-modal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>⌨️ 키보드 단축키</h3>
+        <button id="modal-close-btn" class="modal-close">✕</button>
+      </div>
+      <div class="shortcuts-list">
+        <div class="shortcut-row"><kbd>S</kbd><span>캡처 저장</span></div>
+        <div class="shortcut-row"><kbd>C</kbd><span>카메라 전환</span></div>
+        <div class="shortcut-row"><kbd>1</kbd><span>모자 탭</span></div>
+        <div class="shortcut-row"><kbd>2</kbd><span>귀걸이 탭</span></div>
+        <div class="shortcut-row"><kbd>3</kbd><span>목걸이 탭</span></div>
+        <div class="shortcut-row"><kbd>Space</kbd><span>현재 탭 선택 해제</span></div>
+        <div class="shortcut-row"><kbd>Esc</kbd><span>전체 해제</span></div>
+        <div class="shortcut-row"><kbd>G</kbd><span>갤러리 토글</span></div>
+      </div>
+    </div>
+  </div>
 
   <script type="module" src="./main.js"></script>
 
