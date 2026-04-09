@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 140">
+  <defs>
+    <radialGradient id="g" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#686868"/>
+      <stop offset="100%" stop-color="#2c2c2c"/>
+    </radialGradient>
+  </defs>
+  <!-- 챙 -->
+  <ellipse cx="100" cy="115" rx="88" ry="16" fill="#040404" opacity="0.9"/>
+  <!-- 몸통 -->
+  <path d="M40 115 Q30 60 100 45 Q170 60 160 115 Z" fill="url(#g)"/>
+  <!-- 하이라이트 -->
+  <ellipse cx="80" cy="72" rx="22" ry="10" fill="white" opacity="0.12" transform="rotate(-20,80,72)"/>
+  <text x="100" y="135" font-family="sans-serif" font-size="14" font-weight="bold"
+        fill="white" text-anchor="middle" opacity="0.9">베레모</text>
+</svg>

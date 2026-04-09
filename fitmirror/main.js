@@ -25,10 +25,13 @@ const state = {
   lightnessWarningShown: false,
 };
 
+// ─── FPS 추적 ────────────────────────────────────────────
+const fps = { frames: 0, last: performance.now(), current: 0 };
+
 // ─── DOM ────────────────────────────────────────────────
 const videoEl       = document.getElementById('input-video');
 const canvas        = document.getElementById('output-canvas');
-const ctx           = canvas.getContext('2d');
+const ctx           = canvas.getContext('2d', { willReadFrequently: true });
 const loadingScreen = document.getElementById('loading-screen');
 const loadingText   = document.getElementById('loading-text');
 const errorScreen   = document.getElementById('error-screen');
@@ -42,6 +45,8 @@ const filterValue   = document.getElementById('filter-value');
 const toast         = document.getElementById('toast');
 const drawerToggle  = document.getElementById('drawer-toggle');
 const sidePanel     = document.querySelector('.side-panel');
+const fpsDisplay    = document.getElementById('fps-display');
+const activeIndicator = document.getElementById('active-indicator');
 
 let toastTimer = null;
 let itemsData = null;
@@ -54,6 +59,18 @@ function showToast(message, type = '', duration = 3000) {
   toast.classList.remove('hidden');
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => toast.classList.add('hidden'), duration);
+}
+
+// ─── 착용 중 표시 업데이트 ──────────────────────────────
+function updateActiveIndicator() {
+  const active = Object.entries(state.selectedItems)
+    .filter(([, v]) => v !== null)
+    .map(([k]) => ({ hat: '모자', earring: '귀걸이', necklace: '목걸이' }[k]));
+
+  if (activeIndicator) {
+    activeIndicator.textContent = active.length ? `착용 중: ${active.join(' + ')}` : '';
+    activeIndicator.classList.toggle('hidden', active.length === 0);
+  }
 }
 
 // ─── 아이템 그리드 렌더 ─────────────────────────────────
@@ -73,19 +90,26 @@ function renderItemGrid(category) {
     card.dataset.id = item.id;
 
     const selected = state.selectedItems[category];
-    if (selected && selected.id === item.id) {
-      card.classList.add('selected');
-    }
+    if (selected && selected.id === item.id) card.classList.add('selected');
 
     const img = document.createElement('img');
     img.src = item.thumbnail;
     img.alt = item.name;
     img.loading = 'lazy';
+    // 로드 실패 시 인라인 SVG placeholder
     img.onerror = () => { img.src = makePlaceholderDataURL(item.id); };
 
     const name = document.createElement('div');
     name.className = 'item-name';
     name.textContent = item.name;
+
+    // 선택 중 배지
+    if (selected && selected.id === item.id) {
+      const badge = document.createElement('div');
+      badge.className = 'selected-badge';
+      badge.textContent = '✓ 착용 중';
+      card.appendChild(badge);
+    }
 
     card.appendChild(img);
     card.appendChild(name);
@@ -99,9 +123,15 @@ async function selectItem(category, itemMeta) {
   // 이미 선택된 경우 해제
   if (state.selectedItems[category]?.id === itemMeta.id) {
     state.selectedItems[category] = null;
+    if (category === 'necklace') disablePose();
     renderItemGrid(category);
+    updateActiveIndicator();
     return;
   }
+
+  // 로딩 표시
+  const card = itemGrid.querySelector(`[data-id="${itemMeta.id}"]`);
+  if (card) card.classList.add('loading');
 
   // 이미지 preload
   const img = await loadImage(itemMeta.asset);
@@ -114,10 +144,14 @@ async function selectItem(category, itemMeta) {
   // 목걸이 탭: Pose 활성화
   if (category === 'necklace') {
     loadingText.textContent = 'Pose 모델 로딩 중...';
+    loadingScreen.style.opacity = '0.6';
+    loadingScreen.classList.remove('hidden');
     await enablePose();
+    loadingScreen.classList.add('hidden');
   }
 
   renderItemGrid(category);
+  updateActiveIndicator();
 }
 
 // ─── 이미지 로드 헬퍼 ───────────────────────────────────
@@ -126,7 +160,6 @@ function loadImage(src) {
     const img = new Image();
     img.onload = () => resolve(img);
     img.onerror = () => {
-      // 에셋 없을 때 placeholder
       const placeholder = new Image();
       placeholder.src = makePlaceholderDataURL(src);
       placeholder.onload = () => resolve(placeholder);
@@ -135,111 +168,93 @@ function loadImage(src) {
   });
 }
 
-// ─── Placeholder PNG (DataURL) ──────────────────────────
+// ─── Inline SVG Placeholder ─────────────────────────────
 function makePlaceholderDataURL(seed = '') {
-  const offscreen = document.createElement('canvas');
-  offscreen.width = 100;
-  offscreen.height = 100;
-  const c = offscreen.getContext('2d');
-
-  // seed 기반 색상
   const hue = [...seed].reduce((a, ch) => a + ch.charCodeAt(0), 0) % 360;
-  c.fillStyle = `hsla(${hue}, 60%, 55%, 0.85)`;
-  c.beginPath();
-  c.roundRect(5, 5, 90, 90, 12);
-  c.fill();
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+    <rect width="100" height="100" rx="12" fill="hsl(${hue},50%,40%)" opacity="0.85"/>
+    <text x="50" y="58" font-family="sans-serif" font-size="36"
+          text-anchor="middle" fill="white" opacity="0.9">✦</text>
+  </svg>`;
+  return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+}
 
-  c.fillStyle = 'rgba(255,255,255,0.7)';
-  c.font = 'bold 32px sans-serif';
-  c.textAlign = 'center';
-  c.textBaseline = 'middle';
-  c.fillText('✦', 50, 50);
-
-  return offscreen.toDataURL('image/png');
+// ─── FPS 계산 ────────────────────────────────────────────
+function updateFPS() {
+  fps.frames++;
+  const now = performance.now();
+  const elapsed = now - fps.last;
+  if (elapsed >= 1000) {
+    fps.current = Math.round((fps.frames * 1000) / elapsed);
+    fps.frames = 0;
+    fps.last = now;
+    if (fpsDisplay) fpsDisplay.textContent = `${fps.current} fps`;
+  }
 }
 
 // ─── 렌더 루프 ──────────────────────────────────────────
 function renderFrame() {
   const landmarks = window.currentLandmarks;
 
-  // 캔버스 크기를 video 해상도에 맞춤 (최초 1회 or 변경 시)
+  // 캔버스 크기를 video 해상도에 동기화 (최초 1회 또는 변경 시)
   if (videoEl.videoWidth && canvas.width !== videoEl.videoWidth) {
-    canvas.width = videoEl.videoWidth;
+    canvas.width  = videoEl.videoWidth;
     canvas.height = videoEl.videoHeight;
   }
-
   if (!canvas.width) return;
 
-  // 1. video 프레임 그리기 (미러는 CSS transform으로 처리)
+  // 1. video 프레임 → 캔버스 (미러는 CSS transform: scaleX(-1) 처리)
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.drawImage(videoEl, 0, 0, canvas.width, canvas.height);
 
-  // 2. 어두운 환경 감지 (매 60프레임마다)
-  if (frameCount % 60 === 0) {
-    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const brightness = computeAverageBrightness(imageData);
-    if (brightness < 50 && !state.lightnessWarningShown) {
-      state.lightnessWarningShown = true;
-      showToast('💡 조명이 어둡습니다. 밝은 곳에서 사용해주세요.', 'warning', 4000);
-    } else if (brightness >= 50) {
-      state.lightnessWarningShown = false;
-    }
+  // 2. 어두운 환경 감지 (매 90프레임마다)
+  if (frameCount % 90 === 0) {
+    try {
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const brightness = computeAverageBrightness(imageData);
+      if (brightness < 50 && !state.lightnessWarningShown) {
+        state.lightnessWarningShown = true;
+        showToast('💡 조명이 어둡습니다. 밝은 곳에서 사용해주세요.', 'warning', 4000);
+      } else if (brightness >= 50) {
+        state.lightnessWarningShown = false;
+      }
+    } catch { /* cross-origin 등 예외 무시 */ }
   }
 
-  // 3. 얼굴 감지 여부 체크
+  // 3. 얼굴 감지 여부 체크 (1초 이상 미감지 → 토스트)
   if (landmarks.face) {
     state.lastFaceDetectedAt = Date.now();
     state.faceWarningShown = false;
-  } else {
-    if (state.lastFaceDetectedAt && !state.faceWarningShown) {
-      const elapsed = Date.now() - state.lastFaceDetectedAt;
-      if (elapsed > 1000) {
-        state.faceWarningShown = true;
-        showToast('얼굴을 화면 중앙에 맞춰주세요', '', 2000);
-      }
+  } else if (state.lastFaceDetectedAt && !state.faceWarningShown) {
+    if (Date.now() - state.lastFaceDetectedAt > 1000) {
+      state.faceWarningShown = true;
+      showToast('얼굴을 화면 중앙에 맞춰주세요', '', 2000);
     }
   }
 
   const W = canvas.width;
   const H = canvas.height;
 
-  // 4. 피팅 렌더
+  // 4. 피팅 렌더 (face)
   if (landmarks.face) {
-    // 모자
     if (state.selectedItems.hat) {
-      drawHat(
-        ctx,
-        landmarks.face,
-        state.selectedItems.hat.image,
-        state.selectedItems.hat.sizeCm,
-        W, H,
-        state.filterIntensity
-      );
+      drawHat(ctx, landmarks.face, state.selectedItems.hat.image,
+              state.selectedItems.hat.sizeCm, W, H, state.filterIntensity);
     }
-
-    // 귀걸이
     if (state.selectedItems.earring) {
-      drawEarrings(
-        ctx,
-        landmarks.face,
-        state.selectedItems.earring.image,
-        W, H,
-        state.filterIntensity
-      );
+      drawEarrings(ctx, landmarks.face, state.selectedItems.earring.image,
+                   W, H, state.filterIntensity);
     }
   }
 
-  // 목걸이 (Pose)
+  // 5. 목걸이 (Pose)
   if (landmarks.pose && state.selectedItems.necklace) {
-    drawNecklace(
-      ctx,
-      landmarks.pose,
-      state.selectedItems.necklace.image,
-      W, H,
-      state.filterIntensity
-    );
+    drawNecklace(ctx, landmarks.pose, state.selectedItems.necklace.image,
+                 W, H, state.filterIntensity);
   }
 
+  // 6. FPS 업데이트
+  updateFPS();
   frameCount++;
 }
 
@@ -247,18 +262,14 @@ function renderFrame() {
 function captureAndSave() {
   const dataURL = canvas.toDataURL('image/png');
 
-  // Web Share API 우선 시도
   if (navigator.share && navigator.canShare) {
     canvas.toBlob(async (blob) => {
       const file = new File([blob], 'fitmirror_capture.png', { type: 'image/png' });
       if (navigator.canShare({ files: [file] })) {
         try {
-          await navigator.share({
-            files: [file],
-            title: 'FitMirror 피팅 결과',
-          });
+          await navigator.share({ files: [file], title: 'FitMirror 피팅 결과' });
           return;
-        } catch { /* 취소 시 fallback */ }
+        } catch { /* 취소 → fallback */ }
       }
       downloadDataURL(dataURL);
     }, 'image/png');
@@ -283,14 +294,11 @@ function bindEvents() {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       state.activeCategory = btn.dataset.category;
-
       hatControls.classList.toggle('hidden', state.activeCategory !== 'hat');
 
-      // 목걸이가 아닌 탭으로 이동 & 목걸이 미선택 시 Pose 비활성화
       if (state.activeCategory !== 'necklace' && !state.selectedItems.necklace) {
         disablePose();
       }
-
       renderItemGrid(state.activeCategory);
     });
   });
@@ -299,9 +307,7 @@ function bindEvents() {
   hatSizeSlider.addEventListener('input', () => {
     state.hatSizeCm = parseFloat(hatSizeSlider.value);
     hatSizeValue.textContent = hatSizeSlider.value;
-    if (state.selectedItems.hat) {
-      state.selectedItems.hat.sizeCm = state.hatSizeCm;
-    }
+    if (state.selectedItems.hat) state.selectedItems.hat.sizeCm = state.hatSizeCm;
   });
 
   // 필터 강도 슬라이더
@@ -310,17 +316,14 @@ function bindEvents() {
     filterValue.textContent = filterSlider.value;
   });
 
-  // 캡처 버튼 (헤더 + 하단)
+  // 캡처 버튼
   document.getElementById('capture-btn').addEventListener('click', captureAndSave);
   document.getElementById('capture-btn-footer').addEventListener('click', captureAndSave);
 
   // 카메라 전환
   document.getElementById('switch-camera-btn').addEventListener('click', async () => {
-    try {
-      await switchCamera(videoEl);
-    } catch {
-      showToast('카메라 전환에 실패했습니다.');
-    }
+    try { await switchCamera(videoEl); }
+    catch { showToast('카메라 전환에 실패했습니다.'); }
   });
 
   // 선택 해제
@@ -328,6 +331,7 @@ function bindEvents() {
     state.selectedItems[state.activeCategory] = null;
     if (state.activeCategory === 'necklace') disablePose();
     renderItemGrid(state.activeCategory);
+    updateActiveIndicator();
   });
 
   // 모바일 drawer 토글
@@ -355,33 +359,29 @@ async function init() {
   try {
     loadingText.textContent = '카메라 초기화 중...';
     await initCamera(videoEl);
-  } catch (err) {
+  } catch {
     loadingScreen.classList.add('hidden');
     errorScreen.classList.remove('hidden');
     return;
   }
 
-  // MediaPipe 초기화 및 렌더 루프 시작
+  // MediaPipe Face Mesh 초기화
   try {
     loadingText.textContent = 'AI 모델 로딩 중...';
     await startMediaPipeLoop(videoEl, renderFrame);
   } catch (err) {
     console.error('MediaPipe 초기화 실패:', err);
-    // 기본 비디오 스트림만으로 fallback
     showToast('AI 모델 로딩 실패. 기본 모드로 실행합니다.', 'warning', 5000);
-    function basicLoop() {
-      renderFrame();
-      requestAnimationFrame(basicLoop);
-    }
+    function basicLoop() { renderFrame(); requestAnimationFrame(basicLoop); }
     requestAnimationFrame(basicLoop);
   }
 
-  // 앱 표시
+  // 앱 표시 (fade-out 로딩 화면)
   loadingScreen.style.opacity = '0';
   setTimeout(() => {
     loadingScreen.classList.add('hidden');
     appEl.classList.remove('hidden');
-    drawerToggle.classList.toggle('hidden', window.innerWidth > 768);
+    if (window.innerWidth <= 768) drawerToggle.classList.remove('hidden');
   }, 400);
 
   // 이벤트 바인딩
@@ -389,11 +389,6 @@ async function init() {
 
   // 초기 그리드 렌더 (귀걸이 탭)
   renderItemGrid('earring');
-
-  // 모바일 감지
-  if (window.innerWidth <= 768) {
-    drawerToggle.classList.remove('hidden');
-  }
 }
 
 // ─── 시작 ───────────────────────────────────────────────

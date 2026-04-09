@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 140">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#566686"/>
+      <stop offset="100%" stop-color="#1a2a4a"/>
+    </linearGradient>
+  </defs>
+  <!-- 챙 -->
+  <path d="M30 105 Q100 120 175 100 L165 110 Q100 130 30 115 Z" fill="#000222"/>
+  <!-- 모자 몸통 -->
+  <path d="M45 105 Q40 55 100 40 Q160 55 155 105 Z" fill="url(#g)"/>
+  <!-- 버튼 -->
+  <circle cx="100" cy="44" r="6" fill="#000222"/>
+  <!-- 심 -->
+  <path d="M100 50 L100 105" stroke="#000222" stroke-width="2" opacity="0.4"/>
+  <text x="100" y="130" font-family="sans-serif" font-size="13" font-weight="bold"
+        fill="white" text-anchor="middle" opacity="0.9">캡모자</text>
+</svg>

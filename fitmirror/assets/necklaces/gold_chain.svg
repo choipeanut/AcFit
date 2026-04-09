@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 60">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffe08a"/>
+      <stop offset="100%" stop-color="#c9a84c"/>
+    </linearGradient>
+  </defs>
+  <!-- 체인 링크 반복 -->
+  <ellipse cx="18" cy="30" rx="9" ry="5" fill="none" stroke="url(#g)" stroke-width="3.5" transform="rotate(0,18,30)"/>
+  <ellipse cx="40" cy="32.39712769302101" rx="9" ry="5" fill="none" stroke="url(#g)" stroke-width="3.5" transform="rotate(90,40,32.39712769302101)"/>
+  <ellipse cx="62" cy="34.207354924039485" rx="9" ry="5" fill="none" stroke="url(#g)" stroke-width="3.5" transform="rotate(0,62,34.207354924039485)"/>
+  <ellipse cx="84" cy="34.98747493302027" rx="9" ry="5" fill="none" stroke="url(#g)" stroke-width="3.5" transform="rotate(90,84,34.98747493302027)"/>
+  <ellipse cx="106" cy="34.54648713412841" rx="9" ry="5" fill="none" stroke="url(#g)" stroke-width="3.5" transform="rotate(0,106,34.54648713412841)"/>
+  <ellipse cx="128" cy="32.992360720519784" rx="9" ry="5" fill="none" stroke="url(#g)" stroke-width="3.5" transform="rotate(90,128,32.992360720519784)"/>
+  <ellipse cx="150" cy="30.705600040299338" rx="9" ry="5" fill="none" stroke="url(#g)" stroke-width="3.5" transform="rotate(0,150,30.705600040299338)"/>
+  <ellipse cx="172" cy="28.246083861551902" rx="9" ry="5" fill="none" stroke="url(#g)" stroke-width="3.5" transform="rotate(90,172,28.246083861551902)"/>
+  <ellipse cx="194" cy="26.21598752346036" rx="9" ry="5" fill="none" stroke="url(#g)" stroke-width="3.5" transform="rotate(0,194,26.21598752346036)"/>
+  <ellipse cx="216" cy="25.112349411674515" rx="9" ry="5" fill="none" stroke="url(#g)" stroke-width="3.5" transform="rotate(90,216,25.112349411674515)"/>
+  <ellipse cx="238" cy="25.205378626684308" rx="9" ry="5" fill="none" stroke="url(#g)" stroke-width="3.5" transform="rotate(0,238,25.205378626684308)"/>
+  <ellipse cx="260" cy="26.47229837214804" rx="9" ry="5" fill="none" stroke="url(#g)" stroke-width="3.5" transform="rotate(90,260,26.47229837214804)"/>
+  <!-- 하이라이트 -->
+  <path d="M15 25 Q150 18 285 25" fill="none" stroke="#ffe08a" stroke-width="1.5"
+        opacity="0.5" stroke-linecap="round"/>
+</svg>

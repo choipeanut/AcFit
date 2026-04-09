@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80">
+  <defs>
+    <radialGradient id="g" cx="30%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="white"/>
+      <stop offset="60%" stop-color="#c0c0c0"/>
+      <stop offset="100%" stop-color="#989898"/>
+    </radialGradient>
+  </defs>
+  <circle cx="40" cy="40" r="34" fill="url(#g)" opacity="0.95"/>
+  <circle cx="40" cy="40" r="22" fill="transparent" stroke="#1a1a2a" stroke-width="0"/>
+  <!-- 내부 컷아웃으로 후프 효과 -->
+  <circle cx="40" cy="40" r="22" fill="#1a1a1f"/>
+  <!-- 하이라이트 -->
+  <path d="M15 30 Q22 12 40 10 Q58 12 65 30" fill="none" stroke="white" stroke-width="3" opacity="0.4" stroke-linecap="round"/>
+</svg>

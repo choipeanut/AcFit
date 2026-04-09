@@ -3,7 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0f0f11" />
+  <meta name="description" content="웹캠 기반 실시간 가상 악세사리 피팅 서비스" />
   <title>FitMirror — 가상 악세사리 피팅</title>
+  <link rel="manifest" href="./manifest.json" />
   <link rel="stylesheet" href="./style.css" />
 
   <!-- MediaPipe Face Mesh -->
@@ -11,7 +14,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
 
-  <!-- MediaPipe Pose (Phase 2 / 목걸이 탭 시 활성화) -->
+  <!-- MediaPipe Pose (목걸이 탭 선택 시 lazy 활성화) -->
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
 </head>
 <body>
@@ -21,7 +24,8 @@
     <div class="error-box">
       <div class="error-icon">📷</div>
       <h2>카메라 접근 권한이 필요합니다</h2>
-      <p>FitMirror는 실시간 피팅을 위해 웹캠이 필요합니다.<br>브라우저 주소창 옆의 카메라 아이콘을 클릭하여 권한을 허용해주세요.</p>
+      <p>FitMirror는 실시간 피팅을 위해 웹캠이 필요합니다.<br>
+         브라우저 주소창 옆의 카메라 아이콘을 클릭하여 권한을 허용해주세요.</p>
       <button id="retry-btn" class="btn-primary">다시 시도</button>
     </div>
   </div>
@@ -44,7 +48,11 @@
         <span class="logo-icon">✨</span>
         <h1>FitMirror</h1>
       </div>
+      <!-- 착용 중 표시 -->
+      <div id="active-indicator" class="active-indicator hidden"></div>
       <div class="header-actions">
+        <!-- FPS 표시 -->
+        <span id="fps-display" class="fps-display">-- fps</span>
         <button id="capture-btn" class="icon-btn" title="캡처 저장">📸</button>
         <button id="switch-camera-btn" class="icon-btn" title="카메라 전환">🔄</button>
       </div>
@@ -59,6 +67,11 @@
         <canvas id="output-canvas"></canvas>
         <!-- 토스트 메시지 -->
         <div id="toast" class="toast hidden"></div>
+        <!-- 얼굴 가이드 오버레이 -->
+        <div class="face-guide" id="face-guide">
+          <div class="face-oval"></div>
+          <p>얼굴을 이 위치에 맞춰주세요</p>
+        </div>
       </div>
 
       <!-- 사이드 패널 -->
@@ -66,34 +79,34 @@
 
         <!-- 카테고리 탭 -->
         <div class="tab-bar">
-          <button class="tab-btn" data-category="hat">모자</button>
-          <button class="tab-btn active" data-category="earring">귀걸이</button>
-          <button class="tab-btn" data-category="necklace">목걸이</button>
+          <button class="tab-btn" data-category="hat">
+            <span class="tab-icon">🎩</span> 모자
+          </button>
+          <button class="tab-btn active" data-category="earring">
+            <span class="tab-icon">💎</span> 귀걸이
+          </button>
+          <button class="tab-btn" data-category="necklace">
+            <span class="tab-icon">📿</span> 목걸이
+          </button>
         </div>
 
         <!-- 아이템 그리드 -->
-        <div class="item-grid" id="item-grid">
-          <!-- JS로 동적 렌더 -->
-        </div>
+        <div class="item-grid" id="item-grid"></div>
 
-        <!-- 모자 치수 컨트롤 (모자 탭에서만 표시) -->
+        <!-- 모자 치수 컨트롤 -->
         <div class="hat-controls hidden" id="hat-controls">
           <label class="control-label">
             모자 둘레 (cm)
             <span id="hat-size-value">58</span>
           </label>
-          <input
-            type="range"
-            id="hat-size-slider"
-            min="52"
-            max="64"
-            value="58"
-            step="0.5"
-            class="slider"
-          />
+          <input type="range" id="hat-size-slider" min="52" max="64"
+                 value="58" step="0.5" class="slider" />
+          <div class="range-marks">
+            <span>52</span><span>58</span><span>64</span>
+          </div>
         </div>
 
-        <!-- 선택 해제 버튼 -->
+        <!-- 선택 해제 -->
         <div class="deselect-area">
           <button id="deselect-btn" class="btn-secondary">선택 해제</button>
         </div>
@@ -106,25 +119,25 @@
       <button id="capture-btn-footer" class="btn-primary">📸 캡처 저장</button>
       <div class="filter-control">
         <label class="control-label">
-          필터 강도
-          <span id="filter-value">50</span>%
+          필터 강도 <span id="filter-value">50</span>%
         </label>
-        <input
-          type="range"
-          id="filter-slider"
-          min="0"
-          max="100"
-          value="50"
-          class="slider"
-        />
+        <input type="range" id="filter-slider" min="0" max="100"
+               value="50" class="slider" />
       </div>
     </footer>
 
   </div>
 
-  <!-- 모바일: 하단 drawer 토글 버튼 -->
+  <!-- 모바일 drawer 토글 -->
   <button id="drawer-toggle" class="drawer-toggle hidden">☰ 아이템 선택</button>
 
   <script type="module" src="./main.js"></script>
+
+  <!-- Service Worker 등록 (PWA 오프라인 지원) -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js').catch(() => {});
+    }
+  </script>
 </body>
 </html>

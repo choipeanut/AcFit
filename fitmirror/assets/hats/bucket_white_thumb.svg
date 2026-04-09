@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 150">
+  <defs>
+    <linearGradient id="g" x1="20%" y1="0%" x2="80%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#c8c8c8"/>
+    </linearGradient>
+  </defs>
+  <!-- 넓은 챙 -->
+  <ellipse cx="100" cy="110" rx="90" ry="18" fill="#a0a0a0" opacity="0.85"/>
+  <!-- 몸통 (버킷 형태) -->
+  <path d="M55 108 Q50 55 100 42 Q150 55 145 108 Z" fill="url(#g)"/>
+  <text x="100" y="138" font-family="sans-serif" font-size="13" font-weight="bold"
+        fill="white" text-anchor="middle" opacity="0.9">버킷햇</text>
+</svg>
