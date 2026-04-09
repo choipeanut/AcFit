@@ -1,0 +1,65 @@
+{
+  "hats": [
+    {
+      "id": "hat_001",
+      "name": "베레모 블랙",
+      "thumbnail": "./assets/hats/beret_black_thumb.png",
+      "asset": "./assets/hats/beret_black.png",
+      "default_size_cm": 58,
+      "anchor": "top-center"
+    },
+    {
+      "id": "hat_002",
+      "name": "캡모자 네이비",
+      "thumbnail": "./assets/hats/cap_navy_thumb.png",
+      "asset": "./assets/hats/cap_navy.png",
+      "default_size_cm": 57,
+      "anchor": "top-center"
+    },
+    {
+      "id": "hat_003",
+      "name": "버킷햇 화이트",
+      "thumbnail": "./assets/hats/bucket_white_thumb.png",
+      "asset": "./assets/hats/bucket_white.png",
+      "default_size_cm": 59,
+      "anchor": "top-center"
+    }
+  ],
+  "earrings": [
+    {
+      "id": "earring_001",
+      "name": "골드 드롭",
+      "thumbnail": "./assets/earrings/gold_drop_thumb.png",
+      "asset": "./assets/earrings/gold_drop.png",
+      "anchor": "top-center"
+    },
+    {
+      "id": "earring_002",
+      "name": "실버 후프",
+      "thumbnail": "./assets/earrings/silver_hoop_thumb.png",
+      "asset": "./assets/earrings/silver_hoop.png",
+      "anchor": "top-center"
+    },
+    {
+      "id": "earring_003",
+      "name": "펄 스터드",
+      "thumbnail": "./assets/earrings/pearl_stud_thumb.png",
+      "asset": "./assets/earrings/pearl_stud.png",
+      "anchor": "top-center"
+    }
+  ],
+  "necklaces": [
+    {
+      "id": "necklace_001",
+      "name": "펜던트 실버",
+      "thumbnail": "./assets/necklaces/pendant_silver_thumb.png",
+      "asset": "./assets/necklaces/pendant_silver.png"
+    },
+    {
+      "id": "necklace_002",
+      "name": "골드 체인",
+      "thumbnail": "./assets/necklaces/gold_chain_thumb.png",
+      "asset": "./assets/necklaces/gold_chain.png"
+    }
+  ]
+}
