@@ -369,6 +369,11 @@ html, body {
   transition: background var(--transition), border-color var(--transition); line-height: 1;
 }
 .icon-btn:hover { background: var(--bg-card); border-color: var(--accent); }
+.icon-btn.active {
+  background: rgba(124,106,247,0.2);
+  border-color: var(--accent);
+  box-shadow: 0 0 10px var(--accent-glow);
+}
 
 /* ===== 하단 바 ===== */
 .footer {
