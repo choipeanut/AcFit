@@ -1,20 +1,25 @@
 import { initCamera, switchCamera } from './camera.js';
-import { initFaceMesh } from './mediapipe-init.js';
+import { initFaceMesh, initPose } from './mediapipe-init.js';
 import { drawHat } from './fitting/hat.js';
 import { drawEarrings } from './fitting/earring.js';
+import { drawNecklace } from './fitting/necklace.js';
 
 // ── 상태 ──────────────────────────────────────────────
 const state = {
   selectedItems: {
     hat: null,      // { meta, image }
     earring: null,  // { meta, image }
-    necklace: null, // Phase 2
+    necklace: null, // { meta, image }
   },
   activeCategory: 'earring',
   hatSizeCm: 58,
   lastFaceDetectedAt: 0,
   isRunning: false,
 };
+
+// Pose 관련 — 목걸이 탭 선택 시 lazy 초기화
+let poseModel = null;
+let latestPoseLandmarks = null;
 
 // ── DOM ───────────────────────────────────────────────
 const videoEl       = document.getElementById('input-video');
@@ -73,7 +78,14 @@ async function renderLoop(faceMesh) {
   if (!state.isRunning) return;
 
   if (videoEl.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
-    await faceMesh.send({ image: videoEl });
+    const promises = [faceMesh.send({ image: videoEl })];
+
+    // Pose는 목걸이가 선택된 경우에만 처리 (lazy 전략)
+    if (state.selectedItems.necklace && poseModel) {
+      promises.push(poseModel.send({ image: videoEl }));
+    }
+
+    await Promise.all(promises);
   }
 
   requestAnimationFrame(() => renderLoop(faceMesh));
@@ -109,6 +121,11 @@ function onFaceResults(results) {
       drawEarrings(ctx, landmarks, state.selectedItems.earring.image, w, h);
     }
 
+    // 목걸이 — Pose 랜드마크는 별도 콜백에서 캐시된 값 사용 (1프레임 lag 무시 가능)
+    if (state.selectedItems.necklace && latestPoseLandmarks) {
+      drawNecklace(ctx, latestPoseLandmarks, state.selectedItems.necklace.image, w, h);
+    }
+
   } else {
     const elapsed = Date.now() - state.lastFaceDetectedAt;
     if (state.lastFaceDetectedAt > 0 && elapsed > 1000) {
@@ -139,10 +156,14 @@ function getImage(id) {
 let _allItems = {};
 
 function renderItemGrid(items) {
+  const currentSelected = state.selectedItems[state.activeCategory];
+
   itemsGrid.innerHTML = '';
   items.forEach((meta) => {
     const card = document.createElement('div');
     card.className = 'item-card';
+    // 탭 전환 후에도 이미 선택된 아이템 강조 유지
+    if (currentSelected?.meta.id === meta.id) card.classList.add('active');
     card.dataset.id = meta.id;
 
     const img = document.createElement('img');
@@ -191,6 +212,14 @@ function setupUI() {
       tabBtns.forEach((b) => b.classList.toggle('active', b === btn));
       hatControls.classList.toggle('hidden', state.activeCategory !== 'hat');
       renderItemGrid(_allItems[state.activeCategory] ?? []);
+
+      // 목걸이 탭 최초 선택 시 Pose 모델 lazy 초기화
+      if (state.activeCategory === 'necklace' && !poseModel) {
+        showToast('목걸이 모델 로딩 중…');
+        poseModel = initPose((results) => {
+          latestPoseLandmarks = results.poseLandmarks ?? null;
+        });
+      }
     });
   });
 

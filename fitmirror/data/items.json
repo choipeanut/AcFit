@@ -46,6 +46,12 @@
       "name": "펜던트 실버",
       "thumbnail": "./assets/necklaces/pendant_silver.svg",
       "asset": "./assets/necklaces/pendant_silver.svg"
+    },
+    {
+      "id": "necklace_002",
+      "name": "골드 체인",
+      "thumbnail": "./assets/necklaces/chain_gold.svg",
+      "asset": "./assets/necklaces/chain_gold.svg"
     }
   ]
 }
