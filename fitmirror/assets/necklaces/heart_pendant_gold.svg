@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 60" width="300" height="60">
+  <!-- 체인 (y≈5, CHAIN_Y_FRAC=0.08) -->
+  <line x1="0"   y1="5" x2="300" y2="5" stroke="#b87c14" stroke-width="2"   stroke-dasharray="5,3"/>
+  <line x1="0"   y1="4" x2="300" y2="4" stroke="#f5c842" stroke-width="0.9" stroke-dasharray="5,3" stroke-dashoffset="3"/>
+  <!-- 펜던트 연결줄 -->
+  <line x1="150" y1="5" x2="150" y2="17" stroke="#a06a10" stroke-width="2"/>
+  <!-- 하트 펜던트 -->
+  <path d="M150,22
+           C150,22 134,15 130,26
+           C126,37 150,54 150,54
+           C150,54 174,37 170,26
+           C166,15 150,22 150,22 Z"
+        fill="#d4a017"/>
+  <!-- 하트 내부 밝은 레이어 -->
+  <path d="M150,25
+           C150,25 138,20 135,28
+           C132,36 150,50 150,50
+           C150,50 168,36 165,28
+           C162,20 150,25 150,25 Z"
+        fill="#f0c040"/>
+  <!-- 하트 하이라이트 -->
+  <path d="M139,23 C139,23 134,26 133,32"
+        fill="none" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.55"/>
+  <!-- 테두리 -->
+  <path d="M150,22
+           C150,22 134,15 130,26
+           C126,37 150,54 150,54
+           C150,54 174,37 170,26
+           C166,15 150,22 150,22 Z"
+        fill="none" stroke="#a07010" stroke-width="1"/>
+</svg>

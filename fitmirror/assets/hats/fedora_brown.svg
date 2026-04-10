@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 210 155" width="210" height="155">
+  <defs>
+    <radialGradient id="fg" cx="40%" cy="35%">
+      <stop offset="0%" stop-color="#c49a5a"/>
+      <stop offset="100%" stop-color="#6b3f10"/>
+    </radialGradient>
+  </defs>
+  <!-- 브림 -->
+  <ellipse cx="105" cy="124" rx="98" ry="19" fill="#5c3510"/>
+  <ellipse cx="105" cy="120" rx="94" ry="15" fill="#7a4a1e"/>
+  <!-- 크라운 몸통 -->
+  <path d="M28,122 Q22,62 62,40 Q105,20 148,40 Q188,62 182,122 Z" fill="url(#fg)"/>
+  <!-- 크라운 상단 움푹 (페도라 특징) -->
+  <ellipse cx="105" cy="40" rx="38" ry="13" fill="#6b3f10"/>
+  <!-- 밴드 -->
+  <path d="M30,108 Q105,120 180,108 L177,97 Q105,109 33,97 Z" fill="#3d2006"/>
+  <!-- 밴드 버클 -->
+  <rect x="93" y="95" width="24" height="15" rx="3" fill="#2a1503"/>
+  <rect x="97" y="99" width="16" height="7" rx="1" fill="#5c3510"/>
+  <!-- 하이라이트 -->
+  <path d="M55,70 Q75,48 100,43 Q78,54 62,78 Z" fill="white" opacity="0.12"/>
+  <!-- 브림 가장자리 스티칭 -->
+  <ellipse cx="105" cy="124" rx="98" ry="19" fill="none" stroke="#4a2a0c" stroke-width="1.5" stroke-dasharray="4,3"/>
+</svg>

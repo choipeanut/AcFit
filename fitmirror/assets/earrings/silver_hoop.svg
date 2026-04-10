@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 95" width="80" height="95">
+  <!-- 훅 -->
+  <path d="M40,5 Q56,5 56,20" fill="none" stroke="#b0b0b0" stroke-width="3.5" stroke-linecap="round"/>
+  <!-- 후프 링 -->
+  <circle cx="40" cy="58" r="28" fill="none" stroke="#b8b8b8" stroke-width="11"/>
+  <!-- 후프 내부 하이라이트 -->
+  <circle cx="40" cy="58" r="28" fill="none" stroke="#d8d8d8" stroke-width="4" stroke-dasharray="20,88" stroke-dashoffset="-10"/>
+</svg>

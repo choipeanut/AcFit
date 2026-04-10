@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#c8960c" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="FitMirror" />
+  <link rel="manifest" href="manifest.json" />
+  <title>FitMirror</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+/* ── Reset & Base ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0d0d0d; --surface: #1a1a1a; --surface2: #242424;
+  --border: #333; --accent: #c8960c; --text: #e8e8e8;
+  --text-dim: #888; --radius: 10px; --panel-w: 280px;
+}
+html, body { height: 100%; background: var(--bg); color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 14px; overflow: hidden; }
+#loading-overlay { position: fixed; inset: 0; background: var(--bg);
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 16px; z-index: 100; }
+.loading-spinner { width: 40px; height: 40px; border: 3px solid var(--border);
+  border-top-color: var(--accent); border-radius: 50%;
+  animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+#loading-overlay p { color: var(--text-dim); }
+#error-overlay { position: fixed; inset: 0; background: var(--bg);
+  display: flex; align-items: center; justify-content: center; z-index: 100; }
+.error-content { text-align: center; padding: 32px; background: var(--surface);
+  border-radius: var(--radius); max-width: 360px; }
+.error-content h2 { margin-bottom: 12px; font-size: 18px; }
+.error-content p  { color: var(--text-dim); margin-bottom: 20px; line-height: 1.5; }
+#retry-btn { padding: 10px 28px; background: var(--accent); color: #000;
+  border: none; border-radius: 6px; font-weight: 600; cursor: pointer; }
+#toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+  background: rgba(30,30,30,0.95); color: var(--text); padding: 10px 20px;
+  border-radius: 20px; font-size: 13px; pointer-events: none;
+  transition: opacity 0.3s; z-index: 50; }
+#app { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+header { display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 16px; background: var(--surface);
+  border-bottom: 1px solid var(--border); flex-shrink: 0; }
+header h1 { font-size: 18px; font-weight: 700; letter-spacing: -0.5px; color: var(--accent); }
+.header-actions { display: flex; gap: 8px; }
+.header-actions button { width: 36px; height: 36px; background: var(--surface2);
+  border: 1px solid var(--border); border-radius: 8px; font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
+.header-actions button:hover { background: var(--border); }
+main { display: flex; flex: 1; overflow: hidden; }
+.camera-wrapper { flex: 1; position: relative; background: #000; overflow: hidden;
+  display: flex; align-items: center; justify-content: center; }
+#input-video { position: absolute; width: 100%; height: 100%;
+  object-fit: cover; opacity: 0; }
+.canvas-stack { position: relative; display: inline-flex;
+  max-width: 100%; max-height: 100%; line-height: 0; }
+#output-canvas { display: block; max-width: 100%; max-height: 100%; }
+#threejs-canvas { position: absolute; top: 0; left: 0;
+  width: 100%; height: 100%; pointer-events: none; }
+.hint { position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%);
+  background: rgba(0,0,0,0.7); color: var(--text); padding: 8px 18px;
+  border-radius: 20px; font-size: 13px; pointer-events: none; }
+.side-panel { width: var(--panel-w); flex-shrink: 0; background: var(--surface);
+  border-left: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
+.category-tabs { display: flex; border-bottom: 1px solid var(--border); }
+.tab-btn { flex: 1; padding: 12px 0; background: none; border: none;
+  border-bottom: 2px solid transparent; color: var(--text-dim); font-size: 13px;
+  font-weight: 500; cursor: pointer; transition: color 0.15s, border-color 0.15s; }
+.tab-btn:hover  { color: var(--text); }
+.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+.items-grid { flex: 1; overflow-y: auto; display: grid;
+  grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 12px; align-content: start; }
+.item-card { background: var(--surface2); border: 2px solid transparent;
+  border-radius: var(--radius); padding: 8px; cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.item-card:hover  { border-color: var(--border); background: #2a2a2a; }
+.item-card.active { border-color: var(--accent); }
+.item-card img { width: 100%; aspect-ratio: 1/1; object-fit: contain;
+  border-radius: 6px; background: #111; }
+.item-card span { font-size: 11px; color: var(--text-dim); text-align: center;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
+.hat-controls { padding: 12px; border-top: 1px solid var(--border);
+  display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; }
+.hat-controls label { font-size: 12px; color: var(--text-dim); }
+.size-input-group { display: flex; align-items: center; gap: 6px; }
+.size-input-group input[type="number"] { width: 70px; padding: 6px 8px;
+  background: var(--surface2); border: 1px solid var(--border); border-radius: 6px;
+  color: var(--text); font-size: 14px; text-align: center; }
+.size-input-group span { color: var(--text-dim); font-size: 12px; }
+input[type="range"] { width: 100%; accent-color: var(--accent); }
+footer { padding: 10px 16px; padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+  background: var(--surface); border-top: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+#save-btn { padding: 10px 36px; background: var(--accent); color: #000;
+  border: none; border-radius: 8px; font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: opacity 0.15s; }
+#save-btn:hover { opacity: 0.85; }
+.hidden { display: none !important; }
+@media (max-width: 768px) {
+  main { flex-direction: column; }
+  .camera-wrapper { flex: 1; min-height: 0; }
+  .side-panel { width: 100%; height: 220px; flex-shrink: 0;
+    border-left: none; border-top: 1px solid var(--border);
+    flex-direction: row; flex-wrap: wrap; }
+  .category-tabs { width: 100%; }
+  .items-grid { grid-template-columns: repeat(4, 1fr); padding: 8px; }
+  .hat-controls { width: 100%; }
+}
+  </style>
+
+  <!-- MediaPipe Face Mesh (버전 고정) -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4.1633559619/face_mesh.js" crossorigin="anonymous"></script>
+  <!-- MediaPipe Pose (버전 고정, 목걸이 탭 선택 시 lazy 로딩) -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5.1675469404/pose.js" crossorigin="anonymous"></script>
+  <!-- Three.js (3D 모자 렌더링) -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js" crossorigin="anonymous"></script>
+</head>
+<body>
+
+  <!-- 로딩 오버레이 -->
+  <div id="loading-overlay">
+    <div class="loading-spinner"></div>
+    <p>FitMirror 로딩 중…</p>
+  </div>
+
+  <!-- 에러 오버레이 -->
+  <div id="error-overlay" class="hidden">
+    <div class="error-content">
+      <h2>카메라 접근 불가</h2>
+      <p id="error-message">카메라 권한을 허용하고 새로고침 해주세요.</p>
+      <button id="retry-btn">다시 시도</button>
+    </div>
+  </div>
+
+  <!-- 토스트 알림 -->
+  <div id="toast" class="hidden"></div>
+
+  <div id="app">
+    <!-- 헤더 -->
+    <header>
+      <h1>FitMirror</h1>
+      <div class="header-actions">
+        <button id="capture-btn" title="캡처 저장">📸</button>
+        <button id="switch-camera-btn" title="카메라 전환">🔄</button>
+      </div>
+    </header>
+
+    <!-- 본문 -->
+    <main>
+      <!-- 카메라 뷰 -->
+      <div class="camera-wrapper">
+        <video id="input-video" playsinline autoplay muted></video>
+        <!-- canvas-stack: output + Three.js overlay가 정확히 같은 영역을 차지 -->
+        <div class="canvas-stack">
+          <!-- WebGL 블렌딩 출력 캔버스 -->
+          <canvas id="output-canvas"></canvas>
+          <!-- Three.js 3D 모자 overlay (투명 배경) -->
+          <canvas id="threejs-canvas"></canvas>
+        </div>
+        <div id="face-hint" class="hint hidden">얼굴을 화면 중앙에 맞춰주세요</div>
+      </div>
+
+      <!-- 사이드 패널 -->
+      <aside class="side-panel">
+        <!-- 카테고리 탭 -->
+        <div class="category-tabs">
+          <button class="tab-btn" data-category="hat">모자</button>
+          <button class="tab-btn active" data-category="earring">귀걸이</button>
+          <button class="tab-btn" data-category="necklace">목걸이</button>
+        </div>
+
+        <!-- 아이템 그리드 -->
+        <div id="items-grid" class="items-grid"></div>
+
+        <!-- 모자 크기 조절 (모자 탭 선택 시만 표시) -->
+        <div id="hat-controls" class="hat-controls hidden">
+          <label>머리 둘레</label>
+          <div class="size-input-group">
+            <input type="number" id="hat-size-input" min="52" max="64" value="58" step="0.5" />
+            <span>cm</span>
+          </div>
+          <input type="range" id="hat-size-slider" min="52" max="64" value="58" step="0.5" />
+        </div>
+      </aside>
+    </main>
+
+    <!-- 푸터 -->
+    <footer>
+      <button id="save-btn">캡처 저장</button>
+    </footer>
+  </div>
+
+  <script type="module" src="./main.js"></script>
+</body>
+</html>

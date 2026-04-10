@@ -95,7 +95,8 @@ export const LANDMARKS = {
 
   // 목걸이 기준
   CHIN: 152,               // 턱 끝
-  NECK_CENTER: 0,          // 코 아래 (Pose와 함께 사용)
+  // 목 중심은 Face Mesh로 직접 추정 불가 → POSE_LANDMARKS의 어깨 중점으로 계산
+  // neck_center = midpoint(LEFT_SHOULDER, RIGHT_SHOULDER) + 위쪽 오프셋
 }
 
 // Pose 랜드마크 인덱스

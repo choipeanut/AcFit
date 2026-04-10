@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 25" width="300" height="25">
+  <!-- 골드 체인 (CHAIN_Y_FRAC=0.08 → y≈2) -->
+  <line x1="0" y1="2" x2="300" y2="2" stroke="#b87c14" stroke-width="3"   stroke-dasharray="6,3"/>
+  <line x1="0" y1="1" x2="300" y2="1" stroke="#f5c842" stroke-width="1.2" stroke-dasharray="6,3" stroke-dashoffset="3"/>
+  <!-- 체인 링크 디테일 -->
+  <line x1="0" y1="4" x2="300" y2="4" stroke="#c8960c" stroke-width="1.5" stroke-dasharray="6,3" stroke-dashoffset="1"/>
+</svg>
