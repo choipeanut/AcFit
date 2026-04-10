@@ -15,6 +15,22 @@
       "asset": "./assets/hats/cap_white.svg",
       "default_size_cm": 57,
       "anchor": "top-center"
+    },
+    {
+      "id": "hat_003",
+      "name": "페도라 브라운",
+      "thumbnail": "./assets/hats/fedora_brown.svg",
+      "asset": "./assets/hats/fedora_brown.svg",
+      "default_size_cm": 58,
+      "anchor": "top-center"
+    },
+    {
+      "id": "hat_004",
+      "name": "비니 그레이",
+      "thumbnail": "./assets/hats/beanie_gray.svg",
+      "asset": "./assets/hats/beanie_gray.svg",
+      "default_size_cm": 56,
+      "anchor": "top-center"
     }
   ],
   "earrings": [
@@ -38,6 +54,20 @@
       "thumbnail": "./assets/earrings/pearl_stud.svg",
       "asset": "./assets/earrings/pearl_stud.svg",
       "anchor": "top-center"
+    },
+    {
+      "id": "earring_004",
+      "name": "크리스탈 샹들리에",
+      "thumbnail": "./assets/earrings/crystal_chandelier.svg",
+      "asset": "./assets/earrings/crystal_chandelier.svg",
+      "anchor": "top-center"
+    },
+    {
+      "id": "earring_005",
+      "name": "로즈골드 스터드",
+      "thumbnail": "./assets/earrings/rose_gold_stud.svg",
+      "asset": "./assets/earrings/rose_gold_stud.svg",
+      "anchor": "top-center"
     }
   ],
   "necklaces": [
@@ -52,6 +82,18 @@
       "name": "골드 체인",
       "thumbnail": "./assets/necklaces/chain_gold.svg",
       "asset": "./assets/necklaces/chain_gold.svg"
+    },
+    {
+      "id": "necklace_003",
+      "name": "하트 펜던트 골드",
+      "thumbnail": "./assets/necklaces/heart_pendant_gold.svg",
+      "asset": "./assets/necklaces/heart_pendant_gold.svg"
+    },
+    {
+      "id": "necklace_004",
+      "name": "진주 목걸이",
+      "thumbnail": "./assets/necklaces/pearl_strand.svg",
+      "asset": "./assets/necklaces/pearl_strand.svg"
     }
   ]
 }

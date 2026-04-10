@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 170" width="200" height="170">
+  <defs>
+    <radialGradient id="bg" cx="40%" cy="30%">
+      <stop offset="0%" stop-color="#9a9a9a"/>
+      <stop offset="100%" stop-color="#4a4a4a"/>
+    </radialGradient>
+  </defs>
+  <!-- 비니 몸통 (위가 둥근 형태) -->
+  <path d="M22,138 Q18,70 55,42 Q100,15 145,42 Q182,70 178,138 Z" fill="url(#bg)"/>
+  <!-- 니트 패턴 가로선 -->
+  <path d="M28,105 Q100,112 172,105" fill="none" stroke="#5a5a5a" stroke-width="2.5" opacity="0.4"/>
+  <path d="M26,88  Q100,95  174,88"  fill="none" stroke="#5a5a5a" stroke-width="2.5" opacity="0.4"/>
+  <path d="M25,71  Q100,78  175,71"  fill="none" stroke="#5a5a5a" stroke-width="2.5" opacity="0.4"/>
+  <path d="M26,54  Q100,61  174,54"  fill="none" stroke="#5a5a5a" stroke-width="2.5" opacity="0.4"/>
+  <!-- 니트 세로 골 패턴 -->
+  <line x1="60"  y1="42" x2="40"  y2="138" stroke="#5a5a5a" stroke-width="1.2" opacity="0.3"/>
+  <line x1="80"  y1="32" x2="68"  y2="138" stroke="#5a5a5a" stroke-width="1.2" opacity="0.3"/>
+  <line x1="100" y1="28" x2="100" y2="138" stroke="#5a5a5a" stroke-width="1.2" opacity="0.3"/>
+  <line x1="120" y1="32" x2="132" y2="138" stroke="#5a5a5a" stroke-width="1.2" opacity="0.3"/>
+  <line x1="140" y1="42" x2="160" y2="138" stroke="#5a5a5a" stroke-width="1.2" opacity="0.3"/>
+  <!-- 밑단 폴드 (접힌 부분) -->
+  <path d="M22,138 Q100,152 178,138 L175,158 Q100,170 25,158 Z" fill="#3e3e3e"/>
+  <!-- 밑단 폴드 패턴 -->
+  <path d="M24,148 Q100,158 176,148" fill="none" stroke="#333" stroke-width="2" opacity="0.6"/>
+  <!-- 상단 폼폼 -->
+  <circle cx="100" cy="28" r="14" fill="#888"/>
+  <circle cx="100" cy="26" r="12" fill="#aaa"/>
+  <circle cx="96"  cy="23" r="4"  fill="#bbb" opacity="0.6"/>
+  <!-- 하이라이트 -->
+  <ellipse cx="72" cy="65" rx="20" ry="14" fill="white" opacity="0.1"/>
+</svg>
