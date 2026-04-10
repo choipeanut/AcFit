@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 130" width="60" height="130">
+  <!-- 귀고리 훅 -->
+  <path d="M30,5 Q46,5 46,22 Q46,38 30,40" fill="none" stroke="#c8960c" stroke-width="4" stroke-linecap="round"/>
+  <!-- 연결 체인 -->
+  <line x1="30" y1="40" x2="30" y2="52" stroke="#d4a017" stroke-width="2.5"/>
+  <!-- 드롭 본체 -->
+  <ellipse cx="30" cy="92" rx="18" ry="32" fill="#d4a017"/>
+  <!-- 상단 작은 구슬 -->
+  <circle cx="30" cy="57" r="6" fill="#c8960c"/>
+  <!-- 하이라이트 -->
+  <ellipse cx="22" cy="76" rx="5" ry="9" fill="#f5c842" opacity="0.65"/>
+  <!-- 하단 포인트 -->
+  <ellipse cx="30" cy="120" rx="5" ry="4" fill="#b8820a"/>
+</svg>

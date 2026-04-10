@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 60" width="50" height="60">
+  <!-- 스터드 포스트 -->
+  <line x1="25" y1="5" x2="25" y2="22" stroke="#c0c0c0" stroke-width="2.5"/>
+  <!-- 펄 본체 -->
+  <circle cx="25" cy="40" r="18" fill="#f0ebe0"/>
+  <!-- 펄 오버레이 (진주 광택) -->
+  <radialGradient id="pearl" cx="38%" cy="35%">
+    <stop offset="0%" stop-color="white" stop-opacity="0.9"/>
+    <stop offset="60%" stop-color="#ece5d5" stop-opacity="0.4"/>
+    <stop offset="100%" stop-color="#d5c9b2" stop-opacity="0"/>
+  </radialGradient>
+  <circle cx="25" cy="40" r="18" fill="url(#pearl)"/>
+  <!-- 펄 테두리 -->
+  <circle cx="25" cy="40" r="18" fill="none" stroke="#c8bfa8" stroke-width="1"/>
+</svg>

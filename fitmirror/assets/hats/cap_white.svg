@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 160" width="220" height="160">
+  <!-- 볼캡 몸통 -->
+  <path d="M20,110 Q20,40 110,35 Q200,40 200,110 Z" fill="#f0f0f0"/>
+  <!-- 챙 -->
+  <path d="M18,112 Q110,125 202,112 L205,130 Q110,145 15,130 Z" fill="#ddd"/>
+  <!-- 패널 라인 -->
+  <line x1="110" y1="35" x2="110" y2="112" stroke="#ccc" stroke-width="1.5"/>
+  <!-- 스웻밴드 -->
+  <path d="M20,110 Q110,120 200,110" fill="none" stroke="#bbb" stroke-width="4"/>
+  <!-- 버튼 (탑) -->
+  <circle cx="110" cy="36" r="6" fill="#ddd"/>
+  <!-- 하이라이트 -->
+  <ellipse cx="75" cy="70" rx="25" ry="18" fill="white" opacity="0.3"/>
+</svg>
