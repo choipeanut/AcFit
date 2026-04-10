@@ -119,7 +119,7 @@ async function init() {
     try {
       const res = await fetch('./data/items.json');
       if (res.ok) {
-        _allItems = await res.json();
+        _allItems = normalizeItems(await res.json());
       } else {
         _allItems = ITEMS_FALLBACK;
       }
@@ -280,6 +280,16 @@ function preloadImages(allItems) {
 }
 
 function getImage(id) { return imageCache[id] ?? null; }
+
+// items.json이 복수형 키(hats/earrings/necklaces)를 써도 단수형으로 정규화
+function normalizeItems(raw) {
+  const MAP = { hats: 'hat', earrings: 'earring', necklaces: 'necklace' };
+  const out = {};
+  for (const [k, v] of Object.entries(raw)) {
+    out[MAP[k] ?? k] = v;
+  }
+  return out;
+}
 
 // ── UI 렌더 ───────────────────────────────────────────
 function renderItemGrid(items) {
@@ -480,7 +490,7 @@ function cameraErrorMessage(err) {
   try {
     const res = await fetch('./data/items.json');
     if (res.ok) {
-      _allItems = await res.json();
+      _allItems = normalizeItems(await res.json());
     } else {
       _allItems = ITEMS_FALLBACK;
     }
