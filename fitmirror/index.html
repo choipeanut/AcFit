@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FitMirror</title>
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- MediaPipe Face Mesh (버전 고정) -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4.1633559619/face_mesh.js" crossorigin="anonymous"></script>
+</head>
+<body>
+
+  <!-- 로딩 오버레이 -->
+  <div id="loading-overlay">
+    <div class="loading-spinner"></div>
+    <p>FitMirror 로딩 중…</p>
+  </div>
+
+  <!-- 에러 오버레이 -->
+  <div id="error-overlay" class="hidden">
+    <div class="error-content">
+      <h2>카메라 접근 불가</h2>
+      <p id="error-message">카메라 권한을 허용하고 새로고침 해주세요.</p>
+      <button id="retry-btn">다시 시도</button>
+    </div>
+  </div>
+
+  <!-- 토스트 알림 -->
+  <div id="toast" class="hidden"></div>
+
+  <div id="app">
+    <!-- 헤더 -->
+    <header>
+      <h1>FitMirror</h1>
+      <div class="header-actions">
+        <button id="capture-btn" title="캡처 저장">📸</button>
+        <button id="switch-camera-btn" title="카메라 전환">🔄</button>
+      </div>
+    </header>
+
+    <!-- 본문 -->
+    <main>
+      <!-- 카메라 뷰 -->
+      <div class="camera-wrapper">
+        <video id="input-video" playsinline autoplay muted></video>
+        <canvas id="output-canvas"></canvas>
+        <div id="face-hint" class="hint hidden">얼굴을 화면 중앙에 맞춰주세요</div>
+      </div>
+
+      <!-- 사이드 패널 -->
+      <aside class="side-panel">
+        <!-- 카테고리 탭 -->
+        <div class="category-tabs">
+          <button class="tab-btn" data-category="hat">모자</button>
+          <button class="tab-btn active" data-category="earring">귀걸이</button>
+          <button class="tab-btn" data-category="necklace">목걸이</button>
+        </div>
+
+        <!-- 아이템 그리드 -->
+        <div id="items-grid" class="items-grid"></div>
+
+        <!-- 모자 크기 조절 (모자 탭 선택 시만 표시) -->
+        <div id="hat-controls" class="hat-controls hidden">
+          <label>머리 둘레</label>
+          <div class="size-input-group">
+            <input type="number" id="hat-size-input" min="52" max="64" value="58" step="0.5" />
+            <span>cm</span>
+          </div>
+          <input type="range" id="hat-size-slider" min="52" max="64" value="58" step="0.5" />
+        </div>
+      </aside>
+    </main>
+
+    <!-- 푸터 -->
+    <footer>
+      <button id="save-btn">캡처 저장</button>
+    </footer>
+  </div>
+
+  <script type="module" src="/main.js"></script>
+</body>
+</html>

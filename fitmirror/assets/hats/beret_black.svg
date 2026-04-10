@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 160" width="200" height="160">
+  <!-- 베레모 몸통 -->
+  <ellipse cx="100" cy="72" rx="88" ry="62" fill="#1a1a1a"/>
+  <!-- 베레모 윗면 볼륨 -->
+  <ellipse cx="105" cy="55" rx="72" ry="52" fill="#222"/>
+  <!-- 챙 (brim) -->
+  <ellipse cx="100" cy="120" rx="88" ry="14" fill="#111"/>
+  <!-- 리본 밴드 -->
+  <rect x="18" y="113" width="164" height="11" rx="5" fill="#0a0a0a"/>
+  <!-- 하이라이트 -->
+  <ellipse cx="72" cy="42" rx="22" ry="14" fill="#3a3a3a" opacity="0.5"/>
+</svg>
