@@ -1,0 +1,18 @@
+{
+  "name": "FitMirror",
+  "short_name": "FitMirror",
+  "description": "웹캠 기반 실시간 가상 악세사리 피팅 서비스",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0d0d0d",
+  "theme_color": "#c8960c",
+  "icons": [
+    {
+      "src": "./assets/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

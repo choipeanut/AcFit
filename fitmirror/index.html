@@ -2,7 +2,13 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#c8960c" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="FitMirror" />
+  <link rel="manifest" href="manifest.json" />
   <title>FitMirror</title>
   <link rel="stylesheet" href="style.css" />
 
@@ -10,6 +16,8 @@
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4.1633559619/face_mesh.js" crossorigin="anonymous"></script>
   <!-- MediaPipe Pose (버전 고정, 목걸이 탭 선택 시 lazy 로딩) -->
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5.1675469404/pose.js" crossorigin="anonymous"></script>
+  <!-- Three.js (3D 모자 렌더링) -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js" crossorigin="anonymous"></script>
 </head>
 <body>
 
@@ -46,7 +54,10 @@
       <!-- 카메라 뷰 -->
       <div class="camera-wrapper">
         <video id="input-video" playsinline autoplay muted></video>
+        <!-- WebGL 블렌딩 출력 캔버스 -->
         <canvas id="output-canvas"></canvas>
+        <!-- Three.js 3D 모자 overlay (투명 배경) -->
+        <canvas id="threejs-canvas"></canvas>
         <div id="face-hint" class="hint hidden">얼굴을 화면 중앙에 맞춰주세요</div>
       </div>
 
