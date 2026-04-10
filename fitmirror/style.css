@@ -124,13 +124,22 @@ main {
   object-fit: cover; opacity: 0;       /* hidden — canvas handles display */
 }
 
+/* canvas-stack: output-canvas 크기에 맞게 수축, Three.js canvas는 그 위에 정확히 겹침 */
+.canvas-stack {
+  position: relative;
+  display: inline-flex;
+  max-width: 100%;
+  max-height: 100%;
+  line-height: 0; /* inline gap 제거 */
+}
+
 #output-canvas {
-  max-width: 100%; max-height: 100%;
   display: block;
+  max-width: 100%; max-height: 100%;
   /* 미러링은 canvas context(ctx.scale)에서 처리 — CSS transform 없음 */
 }
 
-/* Three.js 3D 모자 overlay — 투명 배경, 인터랙션 없음 */
+/* Three.js 3D 모자 overlay — canvas-stack 안에서 output-canvas와 동일 영역 */
 #threejs-canvas {
   position: absolute;
   top: 0; left: 0;

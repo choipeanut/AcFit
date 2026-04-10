@@ -54,10 +54,13 @@
       <!-- 카메라 뷰 -->
       <div class="camera-wrapper">
         <video id="input-video" playsinline autoplay muted></video>
-        <!-- WebGL 블렌딩 출력 캔버스 -->
-        <canvas id="output-canvas"></canvas>
-        <!-- Three.js 3D 모자 overlay (투명 배경) -->
-        <canvas id="threejs-canvas"></canvas>
+        <!-- canvas-stack: output + Three.js overlay가 정확히 같은 영역을 차지 -->
+        <div class="canvas-stack">
+          <!-- WebGL 블렌딩 출력 캔버스 -->
+          <canvas id="output-canvas"></canvas>
+          <!-- Three.js 3D 모자 overlay (투명 배경) -->
+          <canvas id="threejs-canvas"></canvas>
+        </div>
         <div id="face-hint" class="hint hidden">얼굴을 화면 중앙에 맞춰주세요</div>
       </div>
 

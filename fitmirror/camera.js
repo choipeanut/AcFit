@@ -10,24 +10,35 @@ let _facingMode = 'user';
 export async function initCamera(videoEl, facingMode = 'user') {
   _facingMode = facingMode;
 
-  const constraints = {
-    video: {
-      width: { ideal: 1280 },
-      height: { ideal: 720 },
-      facingMode,
-    },
-    audio: false,
-  };
+  // 먼저 ideal 제약으로 시도, 실패 시 최소 제약으로 폴백
+  let stream;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        width: { ideal: 1280 },
+        height: { ideal: 720 },
+        facingMode,
+      },
+      audio: false,
+    });
+  } catch {
+    // facingMode 제약이 실패하면 기본 video:true로 재시도
+    stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+  }
 
-  _stream = await navigator.mediaDevices.getUserMedia(constraints);
-  videoEl.srcObject = _stream;
+  _stream = stream;
+  videoEl.srcObject = stream;
 
-  await new Promise((resolve, reject) => {
-    videoEl.onloadedmetadata = resolve;
-    videoEl.onerror = reject;
-  });
+  // loadedmetadata가 이미 발생했으면 대기 없이 통과
+  if (!videoEl.videoWidth) {
+    await new Promise((resolve) => {
+      videoEl.addEventListener('loadedmetadata', resolve, { once: true });
+    });
+  }
 
-  await videoEl.play();
+  // autoplay 속성으로 이미 재생 중일 수 있으므로 AbortError 무시
+  try { await videoEl.play(); } catch { /* autoplay already running or interrupted — OK */ }
+
   return _stream;
 }
 
